@@ -1,14 +1,14 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("Verifier", function () {
+describe("ECDSAVerifier", function () {
   it("Should admit correct signatures", async function () {
     const signers = await hre.ethers.getSigners();
     // Arbitrary.
     const oracleSigner = signers[0];
 
-    const Verifier = await hre.ethers.getContractFactory("Verifier");
-    const verifier = await Verifier.deploy(oracleSigner.address);
+    const ECDSAVerifier = await hre.ethers.getContractFactory("ECDSAVerifier");
+    const verifier = await ECDSAVerifier.deploy(oracleSigner.address);
     await verifier.deployed();
 
     const message = "Redstone oracles are awesome!";
@@ -19,7 +19,7 @@ describe("Verifier", function () {
     const signature = await oracleSigner.signMessage(messageDigestBytes);
     const signatureSplit = hre.ethers.utils.splitSignature(signature);
 
-    const ok = await verifier.callStatic.verifyHash(
+    const ok = await verifier.callStatic.verifyEip191Ecdsa(
       messageDigestBytes, signatureSplit.v, signatureSplit.r, signatureSplit.s);
 
     console.log(ok);

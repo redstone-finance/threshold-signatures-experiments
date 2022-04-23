@@ -5,17 +5,17 @@ async function main() {
   // Arbitrary.
   const oracleSigner = signers[0];
 
-  const Verifier = await hre.ethers.getContractFactory("Verifier");
-  const verifier = await Verifier.deploy(oracleSigner.address);
+  const ECDSAVerifier = await hre.ethers.getContractFactory("ECDSAVerifier");
+  const verifier = await ECDSAVerifier.deploy(oracleSigner.address);
 
   await verifier.deployed();
 
   await hre.tenderly.persistArtifacts({
-    name: "Verifier",
+    name: "ECDSAVerifier",
     address: verifier.address
   });
 
-  console.log("Verifier deployed to:", verifier.address);
+  console.log("ECDSAVerifier deployed to:", verifier.address);
 
   // Sign and verify.
   const message = "Redstone oracles are awesome!";
@@ -28,7 +28,7 @@ async function main() {
 
   console.log("The signature is: ", signature);
 
-  const ok = await verifier.verifyHash(
+  const ok = await verifier.verifyEip191Ecdsa(
     messageDigestBytes, signatureSplit.v, signatureSplit.r, signatureSplit.s);
 
   if (ok) {
