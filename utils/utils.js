@@ -1,3 +1,5 @@
+const util = require("util");
+const execFile = util.promisify(require('child_process').execFile);
 const { ethers } = require("hardhat");
 
 function randomSigners(length) {
@@ -33,8 +35,19 @@ async function getSignaturesAndMask(allSigners, numSignatures, messageDigestByte
   return [vs, rs, ss, mask];
 }
 
+async function getBlsInputs(messageSize, numSigners, numTotal) {
+  const cliBinary = __dirname + "/bls-cli";
+  const { stdout } = await execFile(
+    cliBinary,
+    ["-message-size", messageSize.toString(),
+      "-num-signers", numSigners.toString(),
+      "-num-total", numTotal.toString()]);
+  return JSON.parse(stdout);
+}
+
 module.exports = {
   randomSigners,
   getMessageDigestBytes,
   getSignaturesAndMask,
+  getBlsInputs,
 }
