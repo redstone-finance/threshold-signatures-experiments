@@ -5,9 +5,14 @@ contract ECDSAVerifier {
   address[] private oracles;
   uint threshold;
 
+  // We include some mutable state to measure gas usage of verify more
+  // easily.
+  uint successfulVerifications;
+
   constructor(address[] memory _oracles, uint _threshold) {
     oracles = _oracles;
     threshold = _threshold;
+    successfulVerifications = 0;
   }
 
   function verify(bytes32 hash,
@@ -34,5 +39,16 @@ contract ECDSAVerifier {
     require(numberOfSignatures >= threshold, "too few signers");
     
     return true;
+  }
+
+  function verifyAndMutate(bytes32 hash,
+                           bool[] calldata signers,
+                           uint8[] calldata v,
+                           bytes32[] calldata r,
+                           bytes32[] calldata s)
+  external {
+    if (verify(hash, signers, v, r, s)) {
+      successfulVerifications += 1;
+    }
   }
 }
